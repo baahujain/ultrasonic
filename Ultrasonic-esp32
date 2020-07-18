@@ -1,0 +1,83 @@
+#define TRIGGER 15
+#define ECHO    14
+
+
+
+#include <ESP32Servo.h>
+//#include <FirebaseArduino.h>
+
+#include "esp32-hal-ledc.h"
+
+// Set these to run example.
+#define FIREBASE_HOST "speedy-nodemcu.firebaseio.com"
+#define FIREBASE_AUTH "A1Az2TkGnSyTjHxK7EPTEYZRNi4nPE3L1yCtnamA"
+#define WIFI_SSID "Aviavatar"
+#define WIFI_PASSWORD "qwertyui"
+
+Servo servo1SV;
+int minUs = 550;
+int maxUs = 2250;
+int servo1SVPin = 2;
+
+void setup() {
+  Serial.begin(9600);
+
+servo1SV.setPeriodHertz(50); 
+
+  pinMode(TRIGGER, OUTPUT);
+  pinMode(ECHO, INPUT);
+
+}
+int pos=0;
+ 
+void loop() {
+
+
+ servo1SV.attach(servo1SVPin, 500, maxUs);
+
+ 
+  long duration, distance;
+
+
+    
+  digitalWrite(TRIGGER, LOW);  
+  delayMicroseconds(2); 
+  
+  digitalWrite(TRIGGER, HIGH);
+  delayMicroseconds(10); 
+  
+  digitalWrite(TRIGGER, LOW);
+  duration = pulseIn(ECHO, HIGH);
+  distance = (duration/2) / 29.1;
+  
+  Serial.print(distance);
+  Serial.println("Centimeter:");
+  if(distance < 20 )
+  {
+    Serial.print("in iff");
+      //for (pos = 0; pos <= 85; pos += 1) { // sweep from 0 degrees to 85 degrees
+        // in steps of 1 degree
+        servo1SV.write(90);
+        delay(10);             // Opening of outlet valve
+    //}
+  }
+  while(distance < 20 ) 
+  {
+    Serial.print(distance);
+    Serial.print("DIstance still less than 20");
+      digitalWrite(TRIGGER, LOW);  
+  delayMicroseconds(2); 
+  
+  digitalWrite(TRIGGER, HIGH);
+  delayMicroseconds(10); 
+  
+  digitalWrite(TRIGGER, LOW);
+  duration = pulseIn(ECHO, HIGH);
+  distance = (duration/2) / 29.1;
+    delay(100);
+  }
+  servo1SV.write(0);
+  delay(1000);
+
+   
+}
